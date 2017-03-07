@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css" type="text/css" />
+<script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="detailed.js"></script>
+<title>Coding nut</title>
+</head>
+<body>
+	<div class="main-div">
+		<div class="h-div-1">
+			<div class="info">
+				<div class="info-text"><span class="important">information:</span>This is a recruitment coding nut application. Its
+				backend part is implemented with Java and provides a simple RESTFul API for data reading. Now you could see
+				a monthly wage for each employee. It is possible to choose month or year. This page also allows to get
+				a detailed information about an employee: amount of evening and overtime hours, wage details etc. To see this
+				information, 
+				click "See details" link near the employee's name.</div>
+			</div>
+		</div>
+		<div class="h-div-2">
+			<div class="column">
+				<div class="column-interior">
+					<div class="h-div-selector">
+						<select class="control-select" id="monthSelect"></select>
+						<input type="text" id="yearSelect" />
+						<input type="button" value="Get wage info" id="getButton" onclick="getWageClicked()" />
+					</div>
+					<div class="h-div-data">
+						<div id="wagedata" class="wage-data">
+							No data yet
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="column">
+				<div class="detailed-container" id="detailedcontainer"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
