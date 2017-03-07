@@ -17,10 +17,11 @@ public class ApiService {
 	@GET
 	@Path("/monthWage/{year}/{month}/{start}/{count}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public MontlyWageReportJsonModel monthWageReceived(@PathParam("month") int month, 
-																@PathParam("year") int year,
-																@PathParam("start") int start,
-																@PathParam("count") int count){		 
+	public MontlyWageReportJsonModel monthWageReceived(
+		@PathParam("month") int month, 
+		@PathParam("year") int year,
+		@PathParam("start") int start,
+		@PathParam("count") int count){		 
 		ShiftReader.allowReload();
 		ShiftReader.readShift(WebHelper.getInstance().getCsvPath());
 		return QueryProcessor.getMonthlyWage(month, year, start, count);
