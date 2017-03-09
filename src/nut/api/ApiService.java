@@ -1,9 +1,11 @@
 package nut.api;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import nut.base.ShiftReader;
@@ -21,9 +23,10 @@ public class ApiService {
 		@PathParam("month") int month, 
 		@PathParam("year") int year,
 		@PathParam("start") int start,
-		@PathParam("count") int count){		 
+		@PathParam("count") int count,
+		@Context HttpServletRequest httpRequest){		 
 		ShiftReader.allowReload();
-		ShiftReader.readShift(WebHelper.getInstance().getCsvPath());
+		ShiftReader.readShift(WebHelper.getInstance().getCsvPath(httpRequest));
 		return QueryProcessor.getMonthlyWage(month, year, start, count);
 	}
 	
@@ -32,7 +35,7 @@ public class ApiService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public EmployeeInfoJsonModel getEmployeeInfo(@PathParam("month") int month, 
 			@PathParam("year") int year, @PathParam("employeeId") int employeeId){
-		ShiftReader.readShift(WebHelper.getInstance().getCsvPath());
+		ShiftReader.readShift(WebHelper.getInstance().getCsvPath(null));
 		return QueryProcessor.getEmployeeInfo(month, year, employeeId);
 	}
 }

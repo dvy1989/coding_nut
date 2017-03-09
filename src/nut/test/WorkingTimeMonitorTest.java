@@ -20,7 +20,6 @@ public class WorkingTimeMonitorTest {
 		WorkTimeMonitor.getInstance().addShift(id, date, start, finish);
 		
 		Collection<WorkDay> workDays = WorkTimeMonitor.getInstance().lookupDays(5, 2015);
-		assertNotEquals(null, workDays);
-	}
+		assertNotEquals(null, workDays);	}
 
 }
