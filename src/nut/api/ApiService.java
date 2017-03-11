@@ -7,11 +7,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import nut.base.ShiftReader;
 import nut.data.QueryProcessor;
-import nut.json.EmployeeInfoJsonModel;
-import nut.json.MontlyWageReportJsonModel;
 
 @Path("/api")
 
@@ -19,23 +18,37 @@ public class ApiService {
 	@GET
 	@Path("/monthWage/{year}/{month}/{start}/{count}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public MontlyWageReportJsonModel monthWageReceived(
+	public Response monthWageReceived(
 		@PathParam("month") int month, 
 		@PathParam("year") int year,
 		@PathParam("start") int start,
 		@PathParam("count") int count,
-		@Context HttpServletRequest httpRequest){		 
-		ShiftReader.allowReload();
-		ShiftReader.readShift(WebHelper.getInstance().getCsvPath(httpRequest));
-		return QueryProcessor.getMonthlyWage(month, year, start, count);
+		@Context HttpServletRequest httpRequest){
+		try{
+			ShiftReader.allowReload();
+			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
+			return Response.ok(QueryProcessor.getMonthlyWage(month, year, start, count)).build();
+		}
+		catch (Exception exp){
+			return Response.serverError().entity(exp.getMessage()).build();
+		}
 	}
 	
 	@GET
 	@Path("/employeeInfo/{year}/{month}/{employeeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public EmployeeInfoJsonModel getEmployeeInfo(@PathParam("month") int month, 
-			@PathParam("year") int year, @PathParam("employeeId") int employeeId){
-		ShiftReader.readShift(WebHelper.getInstance().getCsvPath(null));
-		return QueryProcessor.getEmployeeInfo(month, year, employeeId);
+	public Response getEmployeeInfo(
+			@PathParam("month") int month, 
+			@PathParam("year") int year,
+			@PathParam("employeeId") int employeeId,
+			@Context HttpServletRequest httpRequest){ 
+		try{
+			ShiftReader.allowReload();
+			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
+			return Response.ok(QueryProcessor.getEmployeeInfo(month, year, employeeId)).build();
+		}
+		catch (Exception exp){
+			return Response.serverError().entity(exp.getMessage()).build();
+		}
 	}
 }

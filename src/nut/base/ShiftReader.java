@@ -1,7 +1,6 @@
 package nut.base;
 
-import java.io.IOException;
-import java.util.Collection;
+import java.io.InputStream;
 
 import nut.csv.CsvReader;
 import nut.csv.object.CsvWorkShift;
@@ -10,17 +9,17 @@ import nut.data.shift.WorkTimeMonitor;
 import nut.util.Log;
 
 public class ShiftReader {
-	private static final String separator = ",";
+	private static final String separator = ",";	 
 	private static boolean isLoaded = false;
 	
-	public static void readShift(String fileName){
+	public static void readShift(InputStream input){		 
 		if (isLoaded){
 			return;
 		}
-		try{
-			Collection<CsvWorkShift> shifts = CsvReader.<CsvWorkShift>readCsvFile(fileName, separator, CsvWorkShift.class);
-			for (CsvWorkShift shift : shifts){
-				try{
+		try(CsvReader<CsvWorkShift> reader = new CsvReader<CsvWorkShift>(input, separator, CsvWorkShift.class, true)) {
+			CsvWorkShift shift;
+			while ((shift = reader.readLine()) != null) {
+				try{					 
 					EmployeeList.getInstance().add(shift.Id, shift.FirstName, shift.SecondName);
 					WorkTimeMonitor.getInstance().addShift(shift.Id, shift.Date, shift.Start, shift.Finish);
 				}
@@ -29,9 +28,8 @@ public class ShiftReader {
 				}				
 			}
 			isLoaded = true;
-		}
-		catch (IOException exp){
-			Log.error("Error while reading the file", exp);
+		} catch (Exception exp) {
+			Log.error("Error while retrieving work shifts", exp);
 		}
 	}
 	
