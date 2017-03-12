@@ -29,13 +29,14 @@ public class CsvReaderTest {
 	}
 	
 	@Test
-	public void testConstructor() throws IOException {
+	public void testConstructor() throws Exception {
 		makeFile();
-		CsvReader<TestObject> csvReader = new CsvReader<TestObject>(new FileInputStream(fileName),
+		try (CsvReader<TestObject> csvReader = new CsvReader<TestObject>(new FileInputStream(fileName),
 											separator,
 											TestObject.class,
-											true);
-		assertNotNull(csvReader);											
+											true)){
+			assertNotNull(csvReader);	
+		}
 	}
 
 }

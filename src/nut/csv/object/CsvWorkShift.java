@@ -3,14 +3,13 @@ package nut.csv.object;
 import java.util.regex.Pattern;
 
 import nut.csv.CsvFieldParser;
-import nut.csv.ICsvObject;
 
 /**
  * Information about work shift in CSV file
  * @author Владимир
  *
  */
-public class CsvWorkShift implements ICsvObject {
+public class CsvWorkShift {
 	private static Pattern dayPattern = Pattern.compile("[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{4}");
 	private static Pattern timePattern = Pattern.compile("[0-9]{1,2}:[0-9]{1,2}");
 	

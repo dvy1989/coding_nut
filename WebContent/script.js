@@ -128,13 +128,19 @@ function monthWageReceived(jsonResponse){
 }
 
 function loadMonthes(data){
-	var date = new Date();
+	var month;
 	for (var i = 0; i < 12; i++){
-		date.setMonth(i);
-		$("#monthSelect").append("<option value=\"" + (i + 1) + "\"" + (((i + 1) === data.month) ? " selected" : "") + ">"
-				 + date.toLocaleString("en-US", {month : "long"}) + "</option>");		 
+		month = i + 1;		 
+		$("#monthSelect").append("<option value=\"" + month + "\"" + ((month === data.month) ? " selected" : "") + ">"
+				 + getMonthName(month) + "</option>");		 
 	}
 	$("#yearSelect").val(data.year);
+}
+
+function getMonthName(month){
+	var date = new Date();
+	date.setMonth(month - 1);
+	return date.toLocaleString("en-US", {month : "long"});
 }
 
 function loadData(data){
