@@ -9,12 +9,26 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.gson.Gson;
+
 import nut.base.ShiftReader;
 import nut.data.QueryProcessor;
 
 @Path("/api")
 
 public class ApiService {
+	/**
+	 * Serializes object to json string
+	 * It's required as AWS encountered some problems
+	 * with returning JSON of other, than String, objects
+	 * @param obj
+	 * @return JSON
+	 */
+	private String serialize(Object obj){
+		Gson gson = new Gson();
+		return gson.toJson(obj);
+	}
+	
 	@GET
 	@Path("/monthWage/{year}/{month}/{start}/{count}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -27,10 +41,9 @@ public class ApiService {
 		try{
 			ShiftReader.allowReload();
 			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
-			return Response.ok(QueryProcessor.getMonthlyWage(month, year, start, count)).build();
+			return Response.ok(serialize(QueryProcessor.getMonthlyWage(month, year, start, count))).build();			 
 		}
-		catch (Exception exp){
-			exp.printStackTrace();
+		catch (Exception exp){			 
 			return Response.serverError().entity(exp.getMessage()).build();
 		}
 	}
@@ -46,7 +59,7 @@ public class ApiService {
 		try{
 			ShiftReader.allowReload();
 			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
-			return Response.ok(QueryProcessor.getEmployeeInfo(month, year, employeeId)).build();
+			return Response.ok(serialize(QueryProcessor.getEmployeeInfo(month, year, employeeId))).build();
 		}
 		catch (Exception exp){
 			return Response.serverError().entity(exp.getMessage()).build();
@@ -65,7 +78,7 @@ public class ApiService {
 		try{
 			ShiftReader.allowReload();
 			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
-			return Response.ok(QueryProcessor.getWorkDayInfo(month, year, day, employeeId)).build();
+			return Response.ok(serialize(QueryProcessor.getWorkDayInfo(month, year, day, employeeId))).build();
 		}
 		catch (Exception exp){
 			return Response.serverError().entity(exp.getMessage()).build();
