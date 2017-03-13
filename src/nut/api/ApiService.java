@@ -18,7 +18,7 @@ public class ApiService {
 	@GET
 	@Path("/monthWage/{year}/{month}/{start}/{count}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response monthWageReceived(
+	public Response getMonthlyWage(
 		@PathParam("month") int month, 
 		@PathParam("year") int year,
 		@PathParam("start") int start,
@@ -30,6 +30,7 @@ public class ApiService {
 			return Response.ok(QueryProcessor.getMonthlyWage(month, year, start, count)).build();
 		}
 		catch (Exception exp){
+			exp.printStackTrace();
 			return Response.serverError().entity(exp.getMessage()).build();
 		}
 	}
@@ -46,6 +47,25 @@ public class ApiService {
 			ShiftReader.allowReload();
 			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
 			return Response.ok(QueryProcessor.getEmployeeInfo(month, year, employeeId)).build();
+		}
+		catch (Exception exp){
+			return Response.serverError().entity(exp.getMessage()).build();
+		}
+	}
+	
+	@GET
+	@Path("/dayInfo/{year}/{month}/{day}/{employeeId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDayInfo(
+			@PathParam("month") int month, 
+			@PathParam("year") int year,
+			@PathParam("day") int day,
+			@PathParam("employeeId") int employeeId,
+			@Context HttpServletRequest httpRequest){ 
+		try{
+			ShiftReader.allowReload();
+			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
+			return Response.ok(QueryProcessor.getWorkDayInfo(month, year, day, employeeId)).build();
 		}
 		catch (Exception exp){
 			return Response.serverError().entity(exp.getMessage()).build();

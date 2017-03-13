@@ -1,6 +1,8 @@
 /**
  * 
  */
+var employeeId = 0;
+
 function drawCalendar(infoDiv, data){	 
 	var div = $("<div id=\"wagedatatable\" class=\"wage-data\"></div>");
 	var table = $("<table class=\"calendar-table\"></table>");
@@ -44,18 +46,44 @@ function drawCalendar(infoDiv, data){
 	div.append(table);
 	infoDiv.append(div);
 	$(".work-date").click(function(){
-		 drawDayView(infoDiv, $(this).text());
+		showDayDetailedView(employeeId, $(this).text());
 	});
 }
 
-function drawDayView(infoDiv, day){
+function dayInfoLoaded(jsonResponse){
+	console.log(jsonResponse);
+	var infoDiv = $(".detailed-info-div");
+	drawDayView(infoDiv, jsonResponse);
+}
+
+function drawDayView(infoDiv, data){
 	$("#wagedatatable").css("display", "none");
 	var div = $("<div id=\"daydetails\" class=\"wage-data\"></div>");
 	var dateDiv = $("<div></div>");
-	dateDiv.text("Date: " + ("00" + day).slice(-2) + " " + getMonthName(labelStore.month) + " " + labelStore.year);
+	dateDiv.text("Date: " + ("00" + data.Day).slice(-2) + " " + getMonthName(labelStore.month) + " " + labelStore.year);
 	var backDiv = $("<div id=\"backtocalendar\" class=\"back-to-calendar\"></div>");
 	backDiv.text("Back to calendar");
-	div.append(dateDiv);
+	div.append(dateDiv);	 
+	for (var i = 0; i < data.WorkShifts.length; i++){
+		var shift = data.WorkShifts[i];
+		var periodDiv = $("<div class=\"shift-info " + data.WorkShifts[i].ShiftType + "\"></div>");
+		periodDiv.text(shift.Start + " - " 
+				+ shift.Finish
+				+ "; "
+				+ (shift.Hours > 0 ? shift.Hours + " hours " : "")
+				+ (shift.Minutes > 0 ? shift.Minutes + " minutes; " : "")
+				+ "Wage: " + shift.Wage);
+		div.append(periodDiv);
+	}
+	var totalDiv = $("<div></div>");
+	totalDiv.text("Total wage for this day: " + data.DayWage);
+	div.append(totalDiv);
+	div.append($("<div class=\"shift-info\">Legend:</div>"));
+	div.append($("<div class=\"shift-info Normal\">Normal working hours with wage $3.75</div>"));
+	div.append($("<div class=\"shift-info Evening\">Evening hours with compensation $1.15</div>"));
+	div.append($("<div class=\"shift-info Overtime1\">Overtime hours with compensation 125%</div>"));
+	div.append($("<div class=\"shift-info Overtime2\">Overtime hours with compensation 150%</div>"));
+	div.append($("<div class=\"shift-info Overtime3\">Overtime hours with compensation 200%</div>"));
 	div.append(backDiv);
 	infoDiv.append(div);
 	$("#backtocalendar").click(function(){
@@ -75,6 +103,9 @@ function createPersonalDiv(infoDiv, data){
 	personalDiv.append(createTextDiv("First name: " + data.FirstName));
 	personalDiv.append(createTextDiv("Surname: " + data.SecondName));
 	personalDiv.append(createTextDiv("Wage details for: " + getMonthName(labelStore.month) + ", " + labelStore.year));
+	personalDiv.append($("<div style=\"background-color: #8Aff8A; padding: 3px;\">This color " +
+			"refers to days, when employee actually worked. Click a day box of this color to" +
+			"see details</div><br>"));
 	infoDiv.append(personalDiv);	 
 }
 
@@ -93,6 +124,7 @@ function detailedDataLoaded(jsonResponse){
 
 function showDetailedView(id){
 	if (labelStore){
+		employeeId = id;
 		var url = window.location.href + restFolder + 
 		"/" + apiFolder + 
 		"/" + "employeeInfo" + 
@@ -101,6 +133,20 @@ function showDetailedView(id){
 		"/" + id;
 		 
 		sendAjaxRequest(url, labelStore, detailedDataLoaded);
+	}
+}
+
+function showDayDetailedView(id, day){
+	if (labelStore){
+		var url = window.location.href + restFolder + 
+		"/" + apiFolder + 
+		"/" + "dayInfo" + 
+		"/" + labelStore.year + 
+		"/" + labelStore.month +
+		"/" + day +
+		"/" + id;
+		 
+		sendAjaxRequest(url, labelStore, dayInfoLoaded);
 	}
 }
 

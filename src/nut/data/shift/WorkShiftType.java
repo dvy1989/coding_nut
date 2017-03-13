@@ -6,5 +6,5 @@ public enum WorkShiftType {
 	Evening,
 	Overtime1,
 	Overtime2,
-	Overtimr3
+	Overtime3
 }

@@ -2,6 +2,10 @@ package nut.data.shift;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+
+import nut.util.HourAndMinute;
 
 public class WorkDay {
 	private final int id;	 
@@ -12,6 +16,7 @@ public class WorkDay {
 	private final LocalDateTime normalStart;
 
 	private final ArrayList<WorkShift> shifts;
+	private final ArrayList<WorkShift> errorShifts;
 	
 	private double normalWorkingHours = 0;
 	private double eveningWorkingHours = 0;
@@ -20,17 +25,33 @@ public class WorkDay {
 		this.id = id;		 
 		this.normalStart = date.withHour(normalStartHour).withMinute(0);
 		this.normalFinish = date.withHour(normalFinishHour).withMinute(0);
-		shifts = new ArrayList<WorkShift>();		 
+		shifts = new ArrayList<WorkShift>();	
+		errorShifts = new ArrayList<WorkShift>();
 	}
 
 	public void addShift(LocalDateTime shiftStart, LocalDateTime shiftFinish) {
 		for (WorkShift shift : shifts){
 			if (shift.isOverlaped(shiftStart, shiftFinish)){
-				shifts.add(new WorkShift(shiftStart, shiftFinish, WorkShiftType.Error));
+				errorShifts.add(new WorkShift(shiftStart, shiftFinish, WorkShiftType.Error));
 				return;
 			}
 		}
-		addShiftInternal(shiftStart, shiftFinish);
+		addShiftInternal(shiftStart, shiftFinish);		 
+	} 
+	
+	private void sortShifts(){
+		shifts.sort(new Comparator<WorkShift>(){
+			@Override
+			public int compare(WorkShift item1, WorkShift item2){
+				if (item1.getStart().isAfter(item2.getStart())){
+					return 1;
+				}
+				if (item1.getStart().isBefore(item2.getStart())){
+					return -1;
+				}
+				return 0;
+			}
+		});
 	}
 	
 	private void addShiftInternal(LocalDateTime shiftStart, LocalDateTime shiftFinish) {
@@ -66,13 +87,13 @@ public class WorkDay {
 	private void addNormalShift(LocalDateTime shiftStart, LocalDateTime shiftFinish) {
 		WorkShift workShift = new WorkShift(shiftStart, shiftFinish, WorkShiftType.Normal);
 		shifts.add(workShift);
-		normalWorkingHours += workShift.getHours();
+		normalWorkingHours += workShift.duration();
 	}
 
 	private void addEveningShift(LocalDateTime shiftStart, LocalDateTime shiftFinish){
 		WorkShift workShift = new WorkShift(shiftStart, shiftFinish, WorkShiftType.Evening);
 		shifts.add(workShift);
-		eveningWorkingHours += workShift.getHours();
+		eveningWorkingHours += workShift.duration();
 	}
 	
 	public double getNormalHours(){
@@ -94,5 +115,57 @@ public class WorkDay {
 
 	public LocalDateTime getDate() {
 		return normalStart;
+	}
+	
+	public void calculateOvertimes(){
+		sortShifts();		
+		int index = findAndSplit(0, normalWorkingDayHours, WorkShiftType.Overtime1);
+		index = findAndSplit(index, 2, WorkShiftType.Overtime2);
+		index = findAndSplit(index, 2, WorkShiftType.Overtime3);
+		index = shifts.size() - 1;
+		
+		while (index > 1){
+			if (shifts.get(index).getType().compareTo(shifts.get(index - 1).getType()) < 0){
+				shifts.get(index).setType(shifts.get(index - 1).getType());
+			}
+			index--;
+		}
+		
+		for (int i = 0; i < shifts.size(); i++){
+			if (shifts.get(i).getStart().isEqual(shifts.get(i).getFinish())){
+				shifts.remove(i);
+				i--;
+			}
+		}
+	}
+	
+	private int findAndSplit(int index, double hoursToSplit, WorkShiftType shiftType){		 
+		double hoursSinceStart = 0, duration = 0;		 
+		while (index < shifts.size()){
+			duration = shifts.get(index).duration();
+			if (hoursSinceStart + duration > hoursToSplit){
+				splitShift(index, hoursToSplit, hoursSinceStart, shiftType);
+				return index + 1;				 
+			}
+			else{
+				hoursSinceStart += duration;
+				index++;
+			}
+		}
+		return index;
+	}
+	
+	private void splitShift(int index, double splitHours, double hoursSinceStart, WorkShiftType shiftType){
+		double duration = shifts.get(index).duration();
+		LocalDateTime start = shifts.get(index).getStart();
+		LocalDateTime finish = shifts.get(index).getFinish();
+		HourAndMinute shift = HourAndMinute.getHourAndMinute(duration - ((hoursSinceStart + duration) - splitHours));
+		LocalDateTime tmp = start.plusHours(shift.Hours).plusMinutes(shift.Minutes);
+		shifts.set(index, new WorkShift(start, tmp, shifts.get(index).getType()));
+		shifts.add(index + 1, new WorkShift(tmp, finish, shiftType));
+	}
+
+	public Collection<WorkShift> getShifts() {
+		return shifts;
 	}
 }

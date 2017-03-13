@@ -19,7 +19,23 @@ public class WorkShift {
 				|| (finish.isAfter(this.start) && TimeUtils.isBeforeOrEqual(finish, this.finish)));
 	}
 	
-	public double getHours(){
+	public double duration(){
 		return TimeUtils.getHoursBetween(start, finish);
+	}
+
+	public WorkShiftType getType() {
+		return shiftType;
+	}
+
+	public LocalDateTime getStart() {	 
+		return start;
+	}
+
+	public LocalDateTime getFinish() {		 
+		return finish;
+	}
+
+	public void setType(WorkShiftType shiftType) {
+		this.shiftType = shiftType;
 	}
 }

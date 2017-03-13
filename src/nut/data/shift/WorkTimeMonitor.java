@@ -2,52 +2,45 @@ package nut.data.shift;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Map.Entry;
+
 import nut.util.TimeUtils;
 
 public class WorkTimeMonitor {
 	private static WorkTimeMonitor instance = new WorkTimeMonitor();
 	
-	private HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>> calendar;
+	private HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>>> calendar;
 	
 	public static WorkTimeMonitor getInstance(){
 		return instance;
 	}
 	
 	private WorkTimeMonitor(){
-		calendar = new HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>>();
+		calendar = new HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>>>();
 	}
 	
 	private WorkDay addOrGet(int id, LocalDateTime date){
-		addYearData(date.getYear());
+		if (!calendar.containsKey(id)){
+			calendar.put(id, new HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>>());
+		}
+		HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>> employee = calendar.get(id);
 		
-		addMonthData(date.getMonthValue(), date.getYear());		 
+		if (!employee.containsKey(date.getYear())){
+			employee.put(date.getYear(), new HashMap<Integer, HashMap<Integer, WorkDay>>());
+		}
+		HashMap<Integer, HashMap<Integer, WorkDay>> year = employee.get(date.getYear());
 		
-		HashMap<Integer, WorkDay> monthData = getMonthData(date.getMonthValue(), date.getYear());
-		if (!monthData.containsKey(date.getDayOfMonth())){
-			monthData.put(date.getDayOfMonth(), new WorkDay(id, date));
+		if (!year.containsKey(date.getMonthValue())){
+			year.put(date.getMonthValue(), new HashMap<Integer, WorkDay>());
 		}
-		return monthData.get(date.getDayOfMonth());
-	}
-	
-	private HashMap<Integer, HashMap<Integer, WorkDay>> getYearData(int year){
-		return calendar.get(year);
-	}
-	
-	private HashMap<Integer, WorkDay> getMonthData(int month, int year){
-		return calendar.get(year).get(month);
-	}
-	
-	private void addYearData(int year){
-		if (getYearData(year) == null){
-			calendar.put(year, new HashMap<Integer, HashMap<Integer, WorkDay>>());
+		HashMap<Integer, WorkDay> month = year.get(date.getMonthValue());
+		
+		if (!month.containsKey(date.getDayOfMonth())){
+			month.put(date.getDayOfMonth(), new WorkDay(id, date));
 		}
-	}
-	
-	private void addMonthData(int month, int year){
-		if (getMonthData(month, year) == null){
-			getYearData(year).put(month, new HashMap<Integer, WorkDay>());
-		}
-	}	 
+		
+		return month.get(date.getDayOfMonth());
+	}	  
 	
 	public void addShift(int id, int[] date, int[] start, int[] finish) {
 		LocalDateTime dateTime = TimeUtils.makeDate(date[2], date[1], date[0], 0, 0);
@@ -60,31 +53,53 @@ public class WorkTimeMonitor {
 		workDay.addShift(shiftStart, shiftFinish);
 	}
 	
-	public Collection<WorkDay> lookupDays(int month, int year){		
-		HashMap<Integer, HashMap<Integer, WorkDay>> yearData = getYearData(year);
-		if (yearData != null){			 
-			HashMap<Integer, WorkDay> monthData = yearData.get(month);
-			if (monthData != null){				
-				return monthData.values();
-			}
-		}		
-		return null;
+	public HashMap<Integer, Collection<WorkDay>> getDaysOfAllEmployees(int month, int year){
+		HashMap<Integer, Collection<WorkDay>> workDays = new HashMap<Integer, Collection<WorkDay>>();
+		for (Entry<Integer, HashMap<Integer, HashMap<Integer, HashMap<Integer, WorkDay>>>> employee : calendar.entrySet()){
+			workDays.put(employee.getKey(), getDaysOfEmployee(month, year, employee.getKey()));
+		}
+		return workDays;
 	}
 
-	public Collection<WorkDay> lookupDays(int month, int year, int employeeId) {
-		HashMap<Integer, HashMap<Integer, WorkDay>> yearData = getYearData(year);
-		if (yearData != null){			 
-			HashMap<Integer, WorkDay> monthData = yearData.get(month);
-			if (monthData != null){				
-				ArrayList<WorkDay> result = new ArrayList<WorkDay>();
-				for (WorkDay workDay : monthData.values()){
-					if (workDay.getEmployeeId() == employeeId){
-						result.add(workDay);
-					}
-				}
-				return result;
-			}
-		}		
-		return null;
+	public Collection<WorkDay> getDaysOfEmployee(int month, int year, int employeeId) {
+		if (!calendar.containsKey(employeeId)){
+			return null;
+		}
+		
+		if (!calendar.get(employeeId).containsKey(year)){
+			return null;
+		}
+		
+		if (!calendar.get(employeeId).get(year).containsKey(month)){
+			return null;
+		}
+		
+		Collection<WorkDay> workDays = calendar.get(employeeId).get(year).get(month).values();
+		workDays.forEach(workDay -> workDay.calculateOvertimes());
+		return workDays;
+	}
+	
+	 
+
+	public WorkDay getDayOfEmployee(int month, int year, int day, int employeeId) {
+		if (!calendar.containsKey(employeeId)){
+			return null;
+		}
+		
+		if (!calendar.get(employeeId).containsKey(year)){
+			return null;
+		}
+		
+		if (!calendar.get(employeeId).get(year).containsKey(month)){
+			return null;
+		}
+		
+		if (!calendar.get(employeeId).get(year).get(month).containsKey(day)){
+			return null;
+		}
+		
+		WorkDay workDay = calendar.get(employeeId).get(year).get(month).get(day);
+		workDay.calculateOvertimes();
+		return workDay;
 	}
 }

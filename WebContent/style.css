@@ -146,3 +146,33 @@ html, body{
 	z-index: 99999;
 	background-color: #FFFFFF;
 }
+
+.shift-info{
+	padding: 5px;	
+}
+
+.Normal{
+	background-color: #38F538;
+}
+
+.Evening{
+	background-color: #FFDC2E;
+}
+
+.Overtime1{
+	background-color: #FFCE85;
+}
+
+.Overtime2{
+	background-color: #FF9980;
+}
+
+.Overtime3{
+	background-color: #F56C51;
+}
+
+.back-to-calendar{
+	color: #0000FF;
+	text-decoration: underline;
+	cursor: pointer;
+}
