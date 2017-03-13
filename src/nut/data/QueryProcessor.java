@@ -18,13 +18,29 @@ import nut.json.WorkShiftJsonModel;
 import nut.util.HourAndMinute;
 import nut.util.TimeUtils;
 
+/**
+ * Processes user queries
+ * @author Владимир
+ *
+ */
 public class QueryProcessor {
+	/**
+	 * Used for money formatting
+	 */
 	private static final DecimalFormat format = new DecimalFormat("$#.##");
 	
-	public static MontlyWageReportJsonModel getMonthlyWage(int month, int year, int start, int count){		
+	/**
+	 * Get monthly wage for all employees
+	 * @param month
+	 * @param year
+	 * @param start Start index of employee (for paging)
+	 * @param count Number of records
+	 * @return Monthly wage report
+	 */
+	public static MontlyWageReportJsonModel getMonthlyWageForEmployees(int month, int year, int start, int count){		
 		 		
 		MontlyWageReportJsonModel response = new MontlyWageReportJsonModel();
-		
+		 
 		HashMap<Integer, Collection<WorkDay>> employeesWorkDaysInfo = WorkTimeMonitor.getInstance().getDaysOfAllEmployees(month, year);
 		
 		ArrayList<Integer> employeeIdList = new ArrayList<Integer>(employeesWorkDaysInfo.keySet());

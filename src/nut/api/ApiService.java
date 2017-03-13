@@ -44,7 +44,7 @@ public class ApiService {
 			@Context HttpServletRequest httpRequest){ 
 		try{
 			ShiftReader.allowReload();
-			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
+			ShiftReader.readShifts(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
 			return Response.ok(serialize(QueryProcessor.getWorkDayInfo(month, year, day, employeeId))).build();
 		}
 		catch (Exception exp){
@@ -62,7 +62,7 @@ public class ApiService {
 			@Context HttpServletRequest httpRequest){ 
 		try{
 			ShiftReader.allowReload();
-			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
+			ShiftReader.readShifts(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
 			return Response.ok(serialize(QueryProcessor.getEmployeeInfo(month, year, employeeId))).build();
 		}
 		catch (Exception exp){
@@ -81,8 +81,8 @@ public class ApiService {
 		@Context HttpServletRequest httpRequest){
 		try{
 			ShiftReader.allowReload();
-			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
-			return Response.ok(serialize(QueryProcessor.getMonthlyWage(month, year, start, count))).build();			 
+			ShiftReader.readShifts(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
+			return Response.ok(serialize(QueryProcessor.getMonthlyWageForEmployees(month, year, start, count))).build();			 
 		}
 		catch (Exception exp){			 
 			return Response.serverError().entity(exp.getMessage()).build();

@@ -8,11 +8,31 @@ import nut.data.EmployeeList;
 import nut.data.shift.WorkTimeMonitor;
 import nut.util.Log;
 
+/**
+ * Reads work shifts and puts information
+ * from CSV to corresponding storages
+ * @author Владимир
+ *
+ */
 public class ShiftReader {
-	private static final String separator = ",";	 
+	/**
+	 * Shows, that data is loaded
+	 */
 	private static boolean isLoaded = false;
+	/**
+	 * CSV separator
+	 */
+	private static final String separator = ",";
 	
-	public static void readShift(InputStream input){		 
+	public static void allowReload(){
+		isLoaded = false;
+	}
+	
+	/**
+	 * Reads shifts from given input
+	 * @param input
+	 */
+	public static void readShifts(InputStream input){		 
 		if (isLoaded){
 			return;
 		}
@@ -31,9 +51,5 @@ public class ShiftReader {
 		} catch (Exception exp) {
 			Log.error("Error while retrieving work shifts", exp);
 		}
-	}
-	
-	public static void allowReload(){
-		isLoaded = false;
 	}
 }
