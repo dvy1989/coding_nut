@@ -1,8 +1,16 @@
 package nut.data;
 
+/**
+ * Employee's info
+ * @author Владимир
+ *
+ */
 public class Employee {
 	 private final String firstName;
 	 private final int id;
+	 /**
+	  * Used as surname
+	  */
 	 private final String secondName;
 
 	public Employee(int id, String firstName, String secondName) {

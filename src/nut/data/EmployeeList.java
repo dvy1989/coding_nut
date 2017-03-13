@@ -9,11 +9,11 @@ import java.util.HashMap;
  */
 public class EmployeeList  {
 	private static EmployeeList instance = new EmployeeList();
+	private HashMap<Integer, Employee> employees;
+	
 	public static EmployeeList getInstance(){
 		return instance;
 	}
-	
-	private HashMap<Integer, Employee> employees;
 	
 	private EmployeeList(){
 		employees = new HashMap<Integer, Employee>();
@@ -21,8 +21,7 @@ public class EmployeeList  {
 	
 	public void add(int id, String firstName, String secondName){
 		if (!employees.containsKey(id)){
-			employees.put(id, new Employee(id, firstName, secondName));
-			
+			employees.put(id, new Employee(id, firstName, secondName));			
 		}		 
 	}
 

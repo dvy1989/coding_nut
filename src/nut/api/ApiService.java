@@ -14,6 +14,10 @@ import com.google.gson.Gson;
 import nut.base.ShiftReader;
 import nut.data.QueryProcessor;
 
+/**
+ * RESTFul API class  
+ * All methods are GET as only return value
+ */
 @Path("/api")
 
 public class ApiService {
@@ -30,20 +34,20 @@ public class ApiService {
 	}
 	
 	@GET
-	@Path("/monthWage/{year}/{month}/{start}/{count}")
+	@Path("/dayInfo/{year}/{month}/{day}/{employeeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getMonthlyWage(
-		@PathParam("month") int month, 
-		@PathParam("year") int year,
-		@PathParam("start") int start,
-		@PathParam("count") int count,
-		@Context HttpServletRequest httpRequest){
+	public Response getDayInfo(
+			@PathParam("month") int month, 
+			@PathParam("year") int year,
+			@PathParam("day") int day,
+			@PathParam("employeeId") int employeeId,
+			@Context HttpServletRequest httpRequest){ 
 		try{
 			ShiftReader.allowReload();
 			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
-			return Response.ok(serialize(QueryProcessor.getMonthlyWage(month, year, start, count))).build();			 
+			return Response.ok(serialize(QueryProcessor.getWorkDayInfo(month, year, day, employeeId))).build();
 		}
-		catch (Exception exp){			 
+		catch (Exception exp){
 			return Response.serverError().entity(exp.getMessage()).build();
 		}
 	}
@@ -67,20 +71,20 @@ public class ApiService {
 	}
 	
 	@GET
-	@Path("/dayInfo/{year}/{month}/{day}/{employeeId}")
+	@Path("/monthWage/{year}/{month}/{start}/{count}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDayInfo(
-			@PathParam("month") int month, 
-			@PathParam("year") int year,
-			@PathParam("day") int day,
-			@PathParam("employeeId") int employeeId,
-			@Context HttpServletRequest httpRequest){ 
+	public Response getMonthlyWage(
+		@PathParam("month") int month, 
+		@PathParam("year") int year,
+		@PathParam("start") int start,
+		@PathParam("count") int count,
+		@Context HttpServletRequest httpRequest){
 		try{
 			ShiftReader.allowReload();
 			ShiftReader.readShift(FileLookup.lookupFile(httpRequest, FileLookup.csvFileName));
-			return Response.ok(serialize(QueryProcessor.getWorkDayInfo(month, year, day, employeeId))).build();
+			return Response.ok(serialize(QueryProcessor.getMonthlyWage(month, year, start, count))).build();			 
 		}
-		catch (Exception exp){
+		catch (Exception exp){			 
 			return Response.serverError().entity(exp.getMessage()).build();
 		}
 	}
