@@ -11,6 +11,10 @@ public class WorkDay {
 	private static final int normalFinishHour = 18;	 
 	private static final int normalStartHour = 6;
 	private static final double normalWorkingDayHours = 8;
+	/**
+	 * Shifts, that overlap other shifts
+	 * They are not considered for wage calculation
+	 */
 	private final ArrayList<WorkShift> errorShifts;
 	private double eveningWorkingHours = 0;
 	/**
