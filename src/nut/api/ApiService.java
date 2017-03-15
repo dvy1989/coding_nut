@@ -71,7 +71,7 @@ public class ApiService {
 	}
 	
 	@GET
-	@Path("/monthWage/{year}/{month}/{start}/{count}")
+	@Path("/monthlyWage/{year}/{month}/{start}/{count}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getMonthlyWage(
 		@PathParam("month") int month, 
